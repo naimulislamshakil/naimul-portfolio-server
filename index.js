@@ -10,18 +10,41 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://naimul-portfolio:<password>@cluster0.9id2w.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.9id2w.mongodb.net/?retryWrites=true&w=majority`;
+
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+console.log("db add");
+
+const run = async () => {
+  try {
+    await client.connect();
+
+    const portfolioCollaction = client
+      .db("naimul_portfolio")
+      .collection("portfolio");
+
+    app.get("/portfolio", async (req, res) => {
+      const result = await portfolioCollaction.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/singal/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const quaty = { _id: ObjectId(id) };
+      const result = await portfolioCollaction.findOne(quaty);
+      res.send(result);
+    });
+  } finally {
+    // await client.close()
+  }
+};
+
+run().catch(console.dir());
 
 app.get("/", (req, res) => {
   res.send("How Are You?");
