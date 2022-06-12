@@ -26,6 +26,7 @@ const run = async () => {
     const portfolioCollaction = client
       .db("naimul_portfolio")
       .collection("portfolio");
+    const usercollaction = client.db("naimul_portfolio").collection("user");
 
     app.get("/portfolio", async (req, res) => {
       const result = await portfolioCollaction.find().toArray();
@@ -37,6 +38,18 @@ const run = async () => {
 
       const quaty = { _id: ObjectId(id) };
       const result = await portfolioCollaction.findOne(quaty);
+      res.send(result);
+    });
+
+    app.put("/post/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usercollaction.updateOne(filter, updateDoc, options);
       res.send(result);
     });
   } finally {
