@@ -52,6 +52,10 @@ const run = async () => {
       const result = await usercollaction.updateOne(filter, updateDoc, options);
       res.send(result);
     });
+
+    app.get("/resume", async (req, res) => {
+      res.download("./naimul.pdf");
+    });
   } finally {
     // await client.close()
   }
